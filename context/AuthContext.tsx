@@ -20,22 +20,26 @@ type SupabaseUser = {
 interface AuthContextType {
   user: SupabaseUser | null;
   loading: boolean;
+  session: any;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  session: null,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
     const getSessionAndUser = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      setSession(session);
 
       const supabaseUser = session?.user;
 
@@ -79,7 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, session }}>
       {children}
     </AuthContext.Provider>
   );
