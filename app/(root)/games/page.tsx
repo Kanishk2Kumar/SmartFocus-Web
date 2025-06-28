@@ -19,15 +19,19 @@ const page = () => {
       title: "Tetris",
       description:
         "A classic puzzle video game where players manipulate falling tetrominoes.",
-      image: "/tetris.png",
       link: "/games/tetris",
     },
     {
       title: "Memory Game",
       description:
         "Classic Memory game in which you have to find the two same cards too",
-      image: "/Memory.png",
       link: "/games/memory_game",
+    },
+    {
+      title: "2048 Game",
+      description:
+        "Classic 2048 Game, merge numbes to form a greater number , achieve 2048",
+      link: "/games/2048",
     },
   ];
 
