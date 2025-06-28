@@ -155,7 +155,7 @@ export default function CreateSessionPage() {
                     <TableCell>{formatDate(session.started_at)}</TableCell>
                     <TableCell>{formatDate(session.ended_at)}</TableCell>
                     <TableCell>
-                      {getFocusPercent(session.started_at, session.ended_at, session.focus_percent)}
+                      {session.focus_percent}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React from "react";
@@ -16,7 +17,9 @@ const cardButtonStyle =
   "min-w-[120px] text-md px-6 py-3 rounded-xl border border-input shadow-sm hover:bg-accent transition-all";
 
 const CustomInterview = () => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
@@ -26,9 +29,17 @@ const CustomInterview = () => {
       techstack: formData.get("techstack"),
       difficulty: formData.get("difficulty"),
       questions: formData.get("questions"),
+      assessmentType: formData.get("assessmentType"), // Add this
     };
-    console.log("Form Submitted:", data);
-    // TODO: handle API or navigation here
+    // Store the data in session storage for the next page
+    sessionStorage.setItem("interviewParams", JSON.stringify(data));
+
+    // Redirect based on assessment type
+    if (data.assessmentType === "Text Based") {
+      router.push("/interview/text-based");
+    } else {
+      router.push("/interview/voice-based");
+    }
   };
 
   return (
@@ -136,21 +147,21 @@ const CustomInterview = () => {
             </div>
           </div>
           <div className="w-full flex flex-col gap-3">
-            <h3>Select Assesment Type :</h3>
+            <h3>Select Assessment Type :</h3>
             <div className="flex flex-wrap gap-4">
-              {["Text Based", "Voice Based"].map((level) => (
-                <label key={level}>
+              {["Text Based", "Voice Based"].map((type) => (
+                <label key={type}>
                   <input
                     type="radio"
-                    name="difficulty"
-                    value={level}
+                    name="assessmentType" // Changed from "difficulty"
+                    value={type}
                     className="hidden peer"
-                    defaultChecked={level === "Medium"}
+                    defaultChecked={type === "Text Based"} // Set your default
                   />
                   <div
                     className={`${cardButtonStyle} peer-checked:border-white peer-checked:text-purple-300 cursor-pointer`}
                   >
-                    {level}
+                    {type}
                   </div>
                 </label>
               ))}

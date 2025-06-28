@@ -18,12 +18,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { TrendingUp } from "lucide-react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -95,7 +93,7 @@ const chartConfig = {
   },
   other: {
     label: "Other",
-    color: "hsl(210, 70%, 15%)", // deep navy
+    color: "hsl(210, 70%, 15%)", 
   },
 };
 
