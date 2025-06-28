@@ -9,6 +9,12 @@ import supabase from "@/lib/client";
 export default function Monitor() {
   const { user } = useAuth();
 
+  // Retrieve duration in minutes, default to 10
+  const durationMin = Number(localStorage.getItem("duration") || 10);
+
+  // Initialize total time (in seconds) and countdown state
+  const [timeLeft, setTimeLeft] = useState(durationMin * 60);
+
   const [stats, setStats] = useState({
     distraction_seconds: 0,
     looked_away_count: 0,
@@ -17,8 +23,23 @@ export default function Monitor() {
     phone_detected_count: 0,
   });
 
+  // Countdown timer logic
   useEffect(() => {
-    const durationMin = Number(localStorage.getItem("duration") || 10);
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [durationMin]);
+
+  // Auto-stop when timer hits zero
+  useEffect(() => {
+    if (timeLeft === 0 && window.stopMonitoring) {
+      window.stopMonitoring();
+    }
+  }, [timeLeft]);
+
+  // Auto-end session based on duration (redundant but preserves existing logic)
+  useEffect(() => {
     const timeout = setTimeout(() => {
       console.log("⏳ Auto-ending session after time limit");
       if (window.stopMonitoring) window.stopMonitoring();
@@ -27,12 +48,13 @@ export default function Monitor() {
     return () => clearTimeout(timeout);
   }, []);
 
+  // Save session data on stop
   useEffect(() => {
     window.stopMonitoring = async () => {
       if (window._stopTracking) window._stopTracking();
 
       const taskName = localStorage.getItem("taskName") || "Untitled";
-      const duration = Number(localStorage.getItem("duration") || 10); // in minutes
+      const duration = durationMin; // in minutes
 
       const {
         distraction_seconds,
@@ -71,16 +93,26 @@ export default function Monitor() {
       }
 
       alert("✅ Session ended!");
-
-      // window.location.href = "/dashboard";
     };
   }, [stats, user]);
 
+  // Format seconds into MM:SS
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-semibold text-primary-100">
-        Monitoring In Progress
-      </h2>
+      <div className="flex items-center gap-4 justify-between">
+        <h2 className="text-3xl font-semibold text-primary-100">
+          Monitoring In Progress
+        </h2>
+        <span className="text-3xl font-mono px-3 py-1 rounded">
+          {formatTime(timeLeft)}
+        </span>
+      </div>
 
       <div className="flex flex-row gap-6">
         <div className="w-3/5">
