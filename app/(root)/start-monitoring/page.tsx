@@ -5,9 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import supabase from "@/lib/client";
 import { useAuth } from "@/context/AuthContext";
+import { PayButton } from "@/components/PayButton";
 
 interface Session {
   id: string;
@@ -39,46 +47,50 @@ export default function CreateSessionPage() {
 
   const formatDate = (iso: string) => new Date(iso).toLocaleString();
 
-  const getFocusPercent = (start: string, end: string, distractions: number) => {
-    const durationMin = (new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60);
+  const getFocusPercent = (
+    start: string,
+    end: string,
+    distractions: number
+  ) => {
+    const durationMin =
+      (new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60);
     if (durationMin === 0) return "N/A";
     const focus = Math.max(0, 100 - (distractions / durationMin) * 10);
     return `${focus.toFixed(0)}%`;
   };
 
   useEffect(() => {
-  const fetchSessions = async () => {
-    if (!user) return;
+    const fetchSessions = async () => {
+      if (!user) return;
 
-    try {
-      const { data, error } = await supabase
-        .from("sessions")
-        .select("*")
-        .eq("user_id", user.userid)
-        .order("started_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("sessions")
+          .select("*")
+          .eq("user_id", user.userid)
+          .order("started_at", { ascending: false });
 
-      console.log("Fetched sessions:", data);
-      if (error) {
-        console.error("Supabase fetch error:", error);
-        return;
+        console.log("Fetched sessions:", data);
+        if (error) {
+          console.error("Supabase fetch error:", error);
+          return;
+        }
+
+        if (!Array.isArray(data)) {
+          console.error("Data is not an array:", data);
+          return;
+        }
+
+        setSessions(data);
+      } catch (err) {
+        console.error("Unexpected error while fetching sessions:", err);
+      } finally {
+        setLoadingSessions(false);
       }
+    };
 
-      if (!Array.isArray(data)) {
-        console.error("Data is not an array:", data);
-        return;
-      }
-
-      setSessions(data);
-    } catch (err) {
-      console.error("Unexpected error while fetching sessions:", err);
-    } finally {
-      setLoadingSessions(false);
-    }
-  };
-
-  fetchSessions();
-}, [user]);
-
+    fetchSessions();
+  }, [user]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -116,7 +128,14 @@ export default function CreateSessionPage() {
               </div>
             </div>
             <div className="w-1/2 border-1 rounded-2xl p-6 items-center justify-center flex">
-              Blockchain Shit
+              <PayButton
+                amount={0.00001}
+                recipient="0xeF57ca29bA5B9d88B4a9d8cBef94baB7529bd9C9"
+                onSuccess={() => {
+                  alert("Payment successful! Now you can start.");
+                  // Optionally auto-start session here
+                }}
+              />
             </div>
           </div>
           <Button onClick={handleStartSession} className="mt-4">
@@ -154,9 +173,7 @@ export default function CreateSessionPage() {
                     <TableCell>{session.session_name}</TableCell>
                     <TableCell>{formatDate(session.started_at)}</TableCell>
                     <TableCell>{formatDate(session.ended_at)}</TableCell>
-                    <TableCell>
-                      {session.focus_percent}
-                    </TableCell>
+                    <TableCell>{session.focus_percent}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
