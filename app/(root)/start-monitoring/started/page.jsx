@@ -129,8 +129,10 @@ export default function Monitor() {
         pauseTimer();
 
         const taskName = localStorage.getItem("taskName") || "Untitled Task";
+        const sessionPoint = Math.round((durationMin * 60 - timeLeft) / 60);
 
         if (user) {
+          const userPoint = user?.total_points;
           const { error } = await supabase.from("sessions").insert([
             {
               session_name: taskName,
@@ -140,6 +142,7 @@ export default function Monitor() {
               tab_switch_count: stats.tab_switch_count,
               phone_detected_count: stats.phone_detected_count,
               focus_percent,
+              points : sessionPoint,
             },
           ]);
 
@@ -147,6 +150,17 @@ export default function Monitor() {
             console.error("Session save error:", error);
           } else {
             console.log("Session saved successfully");
+            console.log(userPoint + sessionPoint);
+            const { error: updateError } = await supabase
+              .from("user")
+              .update({ total_points: userPoint + sessionPoint })
+              .eq("id", user.id);
+
+            if (updateError) {
+              console.error("User point update error:", updateError);
+            } else {
+              console.log("User point updated successfully");
+            }
           }
         }
 
@@ -212,13 +226,22 @@ export default function Monitor() {
             </div>
 
             <div className="grid grid-cols-3 gap-4 mt-2">
-              <Link href="/quiz" className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 px-3 rounded-lg shadow">
+              <Link
+                href="/quiz"
+                className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 px-3 rounded-lg shadow"
+              >
                 🎯 Quiz
               </Link>
-              <Link href="/games"  className="bg-purple-400 hover:bg-purple-300 text-black font-semibold py-2 px-3 rounded-lg shadow">
+              <Link
+                href="/games"
+                className="bg-purple-400 hover:bg-purple-300 text-black font-semibold py-2 px-3 rounded-lg shadow"
+              >
                 🎮 Game
               </Link>
-              <Link href="/interview"  className="bg-blue-400 hover:bg-blue-500 text-black font-semibold py-2 px-3 rounded-lg shadow">
+              <Link
+                href="/interview"
+                className="bg-blue-400 hover:bg-blue-500 text-black font-semibold py-2 px-3 rounded-lg shadow"
+              >
                 ☕ Break
               </Link>
             </div>
