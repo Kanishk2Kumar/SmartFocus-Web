@@ -142,6 +142,7 @@ export default function Monitor() {
               tab_switch_count: stats.tab_switch_count,
               phone_detected_count: stats.phone_detected_count,
               focus_percent,
+              points : sessionPoint,
             },
           ]);
 
