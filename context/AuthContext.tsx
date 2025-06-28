@@ -14,6 +14,7 @@ type SupabaseUser = {
   userid: string;
   email: string;
   name?: string;
+  total_points?: number;
 };
 
 interface AuthContextType {
@@ -52,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             userid: userProfile.userid,
             email: userProfile.email,
             name: userProfile.name,
+            total_points: userProfile.total_points,
           });
         } else {
           setUser(null);
