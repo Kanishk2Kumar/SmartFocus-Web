@@ -12,7 +12,10 @@ type Message = {
 
 export function ChatPopover() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hi! How can I help you today?' }
+    { 
+      role: 'assistant', 
+      content: 'Hello! I\'m your SmartFocus AI Assistant. How can I help you with our study platform today?' 
+    }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,48 +29,83 @@ export function ChatPopover() {
     scrollToBottom();
   }, [messages]);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!input.trim()) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
 
-  const userMessage = { role: 'user' as const, content: input };
-  const newMessages = [...messages, userMessage];
-  
-  setMessages(newMessages);
-  setInput('');
-  setIsLoading(true);
+    const userMessage = { role: 'user' as const, content: input };
+    const newMessages = [...messages, userMessage];
+    
+    setMessages(newMessages);
+    setInput('');
+    setIsLoading(true);
 
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messages: newMessages.map(m => ({
-          role: m.role,
-          content: m.content
-        }))
-      })
-    });
+    try {
+      // Enhanced SmartFocus topic detection
+      const isAboutSmartFocus = /smartfocus|study|monitor|learning|education|quiz|student|focus|attention|tracking|detection|assistant|platform/i.test(input.toLowerCase());
+      
+      if (!isAboutSmartFocus) {
+        throw new Error("I specialize exclusively in the SmartFocus study assistant platform.");
+      }
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content: `You are the SmartFocus AI Assistant. Your purpose is to provide information exclusively about the SmartFocus platform. 
+
+              SmartFocus Platform Details:
+              - Type: AI-powered desktop study assistant and monitoring platform
+              - Purpose: Ensure focused, honest, and healthy self-study sessions
+              - Features:
+                • Attention Tracking 
+                • Face Detection 
+                • Pose Estimation 
+                • Object Detection 
+                • Audio Monitoring 
+                • Smart Quizzes + Wellbeing Suggestions
+                • Telegram Alerts for parents/teachers
+              
+              Response Rules:
+              1. ONLY answer questions about SmartFocus features, setup, or usage
+              2. For non-SmartFocus queries: "I specialize exclusively in SmartFocus study assistance."
+              3. Be technical but clear about our monitoring capabilities
+              4. Never discuss unrelated AI models or platforms
+              5. For health/wellbeing questions, only reference our posture/break suggestions`
+            },
+            ...newMessages.map(m => ({
+              role: m.role,
+              content: m.content
+            }))
+          ],
+          temperature: 0.3 // Lower temperature for more focused responses
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const assistantMessage = data.choices[0].message;
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: error instanceof Error ? 
+          (error.message.includes('specialize') ? error.message : 'Sorry, I can only discuss SmartFocus-related topics.') 
+          : 'Sorry, an error occurred'
+      }]);
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.json();
-    const assistantMessage = data.choices[0].message;
-    setMessages(prev => [...prev, assistantMessage]);
-  } catch (error) {
-    console.error('Error:', error);
-    setMessages(prev => [...prev, {
-      role: 'assistant',
-      content: error instanceof Error ? error.message : 'Sorry, an error occurred'
-    }]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <Popover>
@@ -76,7 +114,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           className="rounded-full h-16 w-44 border border-primary-100 bg-transparent hover:bg-primary/10 mx-"
           variant="default"
         >
-          <span className="text-primary-100 px-2 text-lg">Support</span>
+          <span className="text-primary-100 px-2 text-lg">SmartFocus AI</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 512 512"
@@ -96,7 +134,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         className="w-96 h-[36rem] bg-background border shadow-xl rounded-lg flex flex-col"
       >
         <div className="flex items-center justify-between px-4 py-2 border-b">
-          <h4 className="font-semibold">Smart Focus Assistant</h4>
+          <h4 className="font-semibold">SmartFocus Assistant</h4>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -124,7 +162,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
         <form onSubmit={handleSubmit} className="p-2 border-t flex gap-2">
           <Input 
-            placeholder="Type a message..." 
+            placeholder="Ask about SmartFocus..." 
             className="flex-1" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
