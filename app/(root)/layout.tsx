@@ -7,16 +7,20 @@ import Image from "next/image";
 import { ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChatPopover } from "../../components/popover"; // Adjust the import path
+import { ChatPopover } from "../../components/popover";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
+import { Button } from "@/components/ui/button";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { open } = useAppKit();
+  const { isConnected, address } = useAppKitAccount({ namespace: "eip155" });
 
-  // ⛔ Redirect if no user and loading is complete
+  // Redirect if no user and loading is complete
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/sign-in"); // redirect to sign-in
+      router.push("/sign-in");
     }
   }, [loading, user, router]);
 
@@ -39,23 +43,14 @@ const Layout = ({ children }: { children: ReactNode }) => {
           <h2 className="hidden sm:block text-primary-100">SmartFocus</h2>
         </Link>
 
-        <div className="flex items-center justify-between gap-6">
-          <Link
-            href="/dashboard"
-            className="text-primary-100 text-lg font-medium"
-          >
+        <div className="flex items-center justify-between gap-5">
+          <Link href="/dashboard" className="text-primary-100 text-lg font-medium">
             Dashboard
           </Link>
-          <Link
-            href="/games"
-            className="text-primary-100 text-lg font-medium"
-          >
+          <Link href="/games" className="text-primary-100 text-lg font-medium">
             Games
           </Link>
-          <Link
-            href="/interview"
-            className="text-primary-100 text-lg font-medium"
-          >
+          <Link href="/interview" className="text-primary-100 text-lg font-medium">
             Custom Interview
           </Link>
 
@@ -65,6 +60,13 @@ const Layout = ({ children }: { children: ReactNode }) => {
               {initials}
             </AvatarFallback>
           </Avatar>
+
+          <Button onClick={() => open({ view: isConnected ? "Account" : "Connect", namespace: "eip155" })}>
+            {isConnected ? 
+              `${address?.slice(0, 6)}...${address?.slice(-4)}` : 
+              "Connect Wallet"
+            }
+          </Button>
         </div>
       </nav>
 
