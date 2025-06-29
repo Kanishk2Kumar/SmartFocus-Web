@@ -1,82 +1,125 @@
-"use client"
+"use client";
 
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
-
-import { Badge } from "@/components/ui/badge"
+import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import supabase from "@/lib/client";
 
 export function SectionCards() {
-  const stats = {
-    totalSessions: 6,
-    S_Sessions: 5,
-    TotalHours: 4,
-    alerts: 1
-  }
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    totalSessions: 0,
+    successSessions: 0,
+    failedSessions: 0,
+    totalHours: 0,
+  });
+
+  useEffect(() => {
+    async function fetchStats() {
+      const { data, error } = await supabase.rpc("get_focus_data_by_date", {
+        user_uuid: user?.userid,
+      });
+
+      if (error) {
+        console.error("Error fetching focus stats:", error);
+        return;
+      }
+
+      const totalSessions = data.length;
+
+      const successSessions = data.filter(
+        (d : any) => d.avg_focus_percent >= 60
+      ).length;
+
+      const failedSessions = data.filter(
+        (d : any) => d.avg_focus_percent < 60
+      ).length;
+
+      const totalHours = totalSessions;
+
+      setStats({
+        totalSessions,
+        successSessions,
+        failedSessions,
+        totalHours,
+      });
+    }
+
+    if (user?.id) {
+      fetchStats();
+    }
+  }, [user]);
 
   return (
-    <div className="flex gap-5">
-      <Card className="h-40 w-68 ">
+    <div className="flex gap-5 flex-wrap">
+      <Card className="h-40 w-68">
         <CardHeader>
           <CardDescription>Total Sessions</CardDescription>
-          <CardTitle className="text-4xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-4xl font-semibold tabular-nums">
             {stats.totalSessions}
           </CardTitle>
         </CardHeader>
         <CardFooter>
           <Badge variant="outline" className="flex items-center gap-1">
             <IconTrendingUp className="size-4" />
-            {stats.S_Sessions} new this month
+            {stats.successSessions} successful
           </Badge>
         </CardFooter>
       </Card>
+
       <Card className="h-40 w-68">
         <CardHeader>
-          <CardDescription className="text-green-600">Success Sessions</CardDescription>
-          <CardTitle className="text-green-600 text-4xl font-semibold tabular-nums @[250px]/card:text-4xl">
-            {stats.S_Sessions}
+          <CardDescription className="text-green-600">
+            Success Sessions
+          </CardDescription>
+          <CardTitle className="text-green-600 text-4xl font-semibold tabular-nums">
+            {stats.successSessions}
           </CardTitle>
         </CardHeader>
         <CardFooter>
           <Badge variant="outline" className="flex items-center gap-1 text-green-600">
-            <IconTrendingDown className="size-4" />
-            Requires attention
+            <IconTrendingUp className="size-4" />
+            {((stats.successSessions / (stats.totalSessions || 1)) * 100).toFixed(1)}% success
           </Badge>
         </CardFooter>
       </Card>
+
       <Card className="h-40 w-68">
         <CardHeader>
           <CardDescription className="text-red-600">Failed Sessions</CardDescription>
-          <CardTitle className="text-red-600 text-4xl font-semibold tabular-nums @[250px]/card:text-4xl">
-            {stats.alerts}
+          <CardTitle className="text-red-600 text-4xl font-semibold tabular-nums">
+            {stats.failedSessions}
           </CardTitle>
         </CardHeader>
         <CardFooter>
           <Badge variant="outline" className="flex items-center gap-1 text-red-600">
             <IconTrendingDown className="size-4" />
-            Requires attention
+            Needs focus
           </Badge>
         </CardFooter>
       </Card>
+
       <Card className="h-40 w-68">
         <CardHeader>
           <CardDescription>Total Hours Studied</CardDescription>
-          <CardTitle className="text-4xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {stats.TotalHours}
+          <CardTitle className="text-4xl font-semibold tabular-nums">
+            {stats.totalHours}
           </CardTitle>
         </CardHeader>
         <CardFooter>
           <Badge variant="outline" className="flex items-center gap-1">
-            {Math.round((stats.TotalHours / stats.totalSessions) * 100)}% more than last week
+            {stats.totalHours > 0 ? `${Math.round((stats.totalHours / stats.totalSessions) * 100)}% productive` : "N/A"}
           </Badge>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
