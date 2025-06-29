@@ -111,14 +111,14 @@ export function ChatPopover() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className="rounded-full h-16 w-44 border border-primary-100 bg-transparent hover:bg-primary/10 mx-"
+          className="rounded-full h-16 w-52 border border-primary-100 bg-transparent hover:bg-primary/10 mx-"
           variant="default"
         >
           <span className="text-primary-100 px-2 text-lg">SmartFocus AI</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 512 512"
-            className="w-6 h-6"
+            className="w-8 h-8"
           >
             <path
               fill="#b3b3e6"

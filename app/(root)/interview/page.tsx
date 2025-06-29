@@ -67,7 +67,7 @@ const Interview = () => {
       </div>
     </div>
     <section className="flex flex-col gap-8 mt-8">
-        <h2>Top Company Interviews</h2>
+        <h2>Top Assesments</h2>
 
         <div className="interviews-section gap-8">
           {hasUpcomingInterviews ? (

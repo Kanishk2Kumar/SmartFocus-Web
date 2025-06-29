@@ -51,7 +51,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
             Games
           </Link>
           <Link href="/interview" className="text-primary-100 text-lg font-medium">
-            Custom Interview
+            Custom Assesment
           </Link>
 
           <Avatar className="w-10 h-10">

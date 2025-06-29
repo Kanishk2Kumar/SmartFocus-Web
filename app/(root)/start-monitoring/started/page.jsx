@@ -20,6 +20,7 @@ export default function Monitor() {
   const [showBreakPrompt, setShowBreakPrompt] = useState(false);
   const [hasShownPrompt, setHasShownPrompt] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
+  const [breakTimeLeft, setBreakTimeLeft] = useState(300); // 5 minutes in seconds
   const timerRef = useRef(null);
 
   const [stats, setStats] = useState({
@@ -129,6 +130,7 @@ export default function Monitor() {
         pauseTimer();
 
         const taskName = localStorage.getItem("taskName") || "Untitled Task";
+        const youtube = localStorage.getItem("youtubeLink") || "https://www.youtube.com/watch?v=-UdHmSTmQtw";
         const sessionPoint = Math.round((durationMin * 60 - timeLeft) / 60);
 
         if (user) {
@@ -143,6 +145,7 @@ export default function Monitor() {
               phone_detected_count: stats.phone_detected_count,
               focus_percent,
               points : sessionPoint,
+              youtube_link: youtube,
             },
           ]);
 
@@ -180,19 +183,20 @@ export default function Monitor() {
   const breakTimerRef = useRef(null);
 
   useEffect(() => {
-    if (showBreakPrompt && breakTimerRef.current) {
-      let remaining = 300; // 5 minutes
-      const el = breakTimerRef.current;
-
-      const interval = setInterval(() => {
-        const m = String(Math.floor(remaining / 60)).padStart(2, "0");
-        const s = String(remaining % 60).padStart(2, "0");
-        if (el) el.textContent = `${m}:${s}`;
-        if (--remaining < 0) clearInterval(interval);
+    let interval;
+    if (showBreakPrompt) {
+      setBreakTimeLeft(300); // Reset to 5 minutes at start of break
+      interval = setInterval(() => {
+        setBreakTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-
-      return () => clearInterval(interval);
     }
+    return () => clearInterval(interval);
   }, [showBreakPrompt]);
 
   return (
@@ -218,28 +222,26 @@ export default function Monitor() {
               <span className="underline">5-minute break</span> to reset!
             </p>
 
-            <div
-              ref={breakTimerRef}
-              className="text-2xl font-mono bg-black/20 rounded px-6 py-1"
-            >
-              05:00
+            <div className="text-2xl font-mono bg-black/20 rounded px-6 py-1">
+              {String(Math.floor(breakTimeLeft / 60)).padStart(2, "0")}:
+              {String(breakTimeLeft % 60).padStart(2, "0")}
             </div>
 
             <div className="grid grid-cols-3 gap-4 mt-2">
               <Link
-                href="/quiz"
+                href="/interview" target="_blank" rel="noopener noreferrer"
                 className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 px-3 rounded-lg shadow"
               >
                 🎯 Quiz
               </Link>
               <Link
-                href="/games"
+                href="/games" target="_blank" rel="noopener noreferrer"
                 className="bg-purple-400 hover:bg-purple-300 text-black font-semibold py-2 px-3 rounded-lg shadow"
               >
                 🎮 Game
               </Link>
               <Link
-                href="/interview"
+                href="#"
                 className="bg-blue-400 hover:bg-blue-500 text-black font-semibold py-2 px-3 rounded-lg shadow"
               >
                 ☕ Break
