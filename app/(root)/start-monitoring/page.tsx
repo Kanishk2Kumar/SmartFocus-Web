@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import supabase from "@/lib/client";
 import { useAuth } from "@/context/AuthContext";
-import { PayButton } from "@/components/PayButton";
+import PayButton from "@/components/PayButton";
 
 interface Session {
   id: string;
@@ -28,6 +28,7 @@ interface Session {
 export default function CreateSessionPage() {
   const [taskName, setTaskName] = useState("");
   const [duration, setDuration] = useState(10); // in minutes
+  const [youtubeLink, setYoutubeLink] = useState("");
   const { user } = useAuth();
 
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -41,6 +42,7 @@ export default function CreateSessionPage() {
 
     localStorage.setItem("taskName", taskName);
     localStorage.setItem("duration", duration.toString());
+    localStorage.setItem("youtubeLink", youtubeLink);
 
     window.location.href = "/start-monitoring/started";
   };
@@ -126,16 +128,20 @@ export default function CreateSessionPage() {
                   onChange={(e) => setDuration(Number(e.target.value))}
                 />
               </div>
+              <div>
+                <Label htmlFor="youtubeLink" className="mb-2">
+                  YouTube Link (Optional)
+                </Label>
+                <Input
+                  id="youtubeLink"
+                  placeholder="Link of YouTube video you are studying from"
+                  value={youtubeLink}
+                  onChange={(e) => setYoutubeLink(e.target.value)}
+                />
+              </div>
             </div>
-            <div className="w-1/2 border-1 rounded-2xl p-6 items-center justify-center flex">
-              <PayButton
-                amount={0.00001}
-                recipient="0xeF57ca29bA5B9d88B4a9d8cBef94baB7529bd9C9"
-                onSuccess={() => {
-                  alert("Payment successful! Now you can start.");
-                  // Optionally auto-start session here
-                }}
-              />
+            <div className="w-1/2">
+              <PayButton />
             </div>
           </div>
           <Button onClick={handleStartSession} className="mt-4">
