@@ -31,39 +31,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { SectionCards } from "@/components/section-cards";
+import supabase from "@/lib/client";
+import { useAuth } from "@/context/AuthContext";
 
-const chartData = [
-  { date: "2025-06-01", focus: 0 },
-  { date: "2025-06-02", focus: 0 },
-  { date: "2025-06-03", focus: 0 },
-  { date: "2025-06-04", focus: 0 },
-  { date: "2025-06-05", focus: 0 },
-  { date: "2025-06-06", focus: 0 },
-  { date: "2025-06-07", focus: 0 },
-  { date: "2025-06-08", focus: 74.1 },
-  { date: "2025-06-09", focus: 75.8 },
-  { date: "2025-06-10", focus: 63.2 },
-  { date: "2025-06-11", focus: 64.5 },
-  { date: "2025-06-12", focus: 70.0 },
-  { date: "2025-06-13", focus: 67.4 },
-  { date: "2025-06-14", focus: 73.9 },
-  { date: "2025-06-15", focus: 69.1 },
-  { date: "2025-06-16", focus: 71.6 },
-  { date: "2025-06-17", focus: 76.5 },
-  { date: "2025-06-18", focus: 65.3 },
-  { date: "2025-06-19", focus: 68.7 },
-  { date: "2025-06-20", focus: 72.0 },
-  { date: "2025-06-21", focus: 66.8 },
-  { date: "2025-06-22", focus: 69.7 },
-  { date: "2025-06-23", focus: 75.2 },
-  { date: "2025-06-24", focus: 64.3 },
-  { date: "2025-06-25", focus: 65.9 },
-  { date: "2025-06-26", focus: 74.2 },
-  { date: "2025-06-27", focus: 73.1 },
-  { date: "2025-06-28", focus: 66.4 },
-  { date: "2025-06-29", focus: 62.8 },
-  { date: "2025-06-30", focus: 70.5 },
-];
 const PiechartData = [
   { browser: "Tabs Switched", visitors: 275, fill: "var(--color-chrome)" },
   { browser: "Looked Away", visitors: 200, fill: "var(--color-safari)" },
@@ -145,11 +115,42 @@ const RadarchartConfig = {
   },
 };
 
-const averageFocus = chartData.length
-  ? chartData.reduce((acc, curr) => acc + curr.focus, 0) / chartData.length
-  : 0;
-
 const FocusLineChart = () => {
+  const { user } = useAuth();
+  const [focusData, setFocusData] = React.useState([]);
+  const [chartData, setChartData] = React.useState([]);
+  const [averageFocus, setAverageFocus] = React.useState(0);
+
+  async function fetchFocusData() {
+    const { data, error } = await supabase.rpc("get_focus_data_by_date", {
+      user_uuid: user?.userid,
+    });
+
+    if (error) {
+      console.error("Error fetching focus data:", error);
+      return;
+    }
+
+    console.log(data);
+
+    setFocusData(data);
+
+    const formattedChartData = data.map((item: any) => ({
+      date: item.date,
+      focus: item.avg_focus_percent,
+    }));
+    setChartData(formattedChartData);
+
+    const avg =
+      data.reduce((acc: any, item: any) => acc + item.avg_focus_percent, 0) /
+      (data.length || 1);
+    setAverageFocus(avg);
+  }
+
+  React.useEffect(() => {
+    fetchFocusData();
+  }, []);
+
   return (
     <div className="flex flex-col gap-4">
       <SectionCards />
