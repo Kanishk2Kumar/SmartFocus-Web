@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Mona_Sans } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
-import WagmiAppProvider from "@/components/Wagmi"
+// import WagmiAppProvider from "@/components/Wagmi"
 import { headers } from "next/headers";
 
 const monaSans = Mona_Sans({
@@ -27,9 +27,9 @@ export default async function RootLayout({
     <html lang="en" className="dark">
       <body className={`${monaSans.className} antialiased pattern`}>
         <AuthProvider>
-          <WagmiAppProvider cookies={cookies}>
+          {/* <WagmiAppProvider cookies={cookies}> */}
           {children}
-          </WagmiAppProvider>
+          {/* </WagmiAppProvider> */}
         </AuthProvider>
         <Toaster />
       </body>

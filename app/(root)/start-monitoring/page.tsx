@@ -140,9 +140,9 @@ export default function CreateSessionPage() {
                 />
               </div>
             </div>
-            <div className="w-1/2">
+            {/* <div className="w-1/2">
               <PayButton />
-            </div>
+            </div> */}
           </div>
           <Button onClick={handleStartSession} className="mt-4">
             Start Monitoring

@@ -8,14 +8,14 @@ import { ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatPopover } from "../../components/popover";
-import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
-import { Button } from "@/components/ui/button";
+// import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
+// import { Button } from "@/components/ui/button";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { open } = useAppKit();
-  const { isConnected, address } = useAppKitAccount({ namespace: "eip155" });
+  // const { open } = useAppKit();
+  // const { isConnected, address } = useAppKitAccount({ namespace: "eip155" });
 
   // Redirect if no user and loading is complete
   useEffect(() => {
@@ -54,19 +54,20 @@ const Layout = ({ children }: { children: ReactNode }) => {
             Custom Assesment
           </Link>
 
+          <Link href="/profile" >
           <Avatar className="w-10 h-10">
             <AvatarImage src="" />
             <AvatarFallback className="bg-gray-900 text-white text-lg font-medium">
               {initials}
             </AvatarFallback>
           </Avatar>
-
-          <Button onClick={() => open({ view: isConnected ? "Account" : "Connect", namespace: "eip155" })}>
+          </Link>
+          {/* <Button onClick={() => open({ view: isConnected ? "Account" : "Connect", namespace: "eip155" })}>
             {isConnected ? 
               `${address?.slice(0, 6)}...${address?.slice(-4)}` : 
               "Connect Wallet"
             }
-          </Button>
+          </Button> */}
         </div>
       </nav>
 
