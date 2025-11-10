@@ -91,7 +91,7 @@ const InterviewCard = async ({
           <Button className="btn-primary">
             <Link
               href={
-                `#`
+                `/feedback`
               }
             >
               {feedback ? "Check Feedback" : "View Interview"}

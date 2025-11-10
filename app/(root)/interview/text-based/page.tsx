@@ -56,7 +56,7 @@ export default function TextBasedInterview() {
       setIsLoading(true);
       setError(null);
 
-      if (!process.env.GROQ_API_KEY) {
+      if (!process.env.NEXT_PUBLIC_GROQ_API_KEY) {
         throw new Error("API key not found - please check your .env file");
       }
 
@@ -73,10 +73,10 @@ export default function TextBasedInterview() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: "llama3-70b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: [{
             role: "user",
             content: prompt
@@ -128,7 +128,7 @@ export default function TextBasedInterview() {
 
   const evaluateAnswer = async (question: string, expectedAnswer: string, userAnswer: string) => {
     try {
-      const apiKey = process.env.GROQ_API_KEY;
+      const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
       if (!apiKey) {
         throw new Error("API key not configured in .env file");
       }
@@ -151,7 +151,7 @@ export default function TextBasedInterview() {
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-70b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.5,
           response_format: { type: "json_object" },
